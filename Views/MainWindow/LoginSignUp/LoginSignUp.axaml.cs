@@ -140,6 +140,8 @@ namespace lab4.MainWindowSpace {
             if (_MainWindow != null) {
                 Session.Username = Username;
                 Session.Password = Password;
+                _MainWindow.Width = 600;
+                _MainWindow.Height = 600;
                 _MainWindow.ShowMainMenu();
             } else {
                 Logger.error("_MainWindow = null. Метод setMainWindow не було викликано для LoginSignUp");

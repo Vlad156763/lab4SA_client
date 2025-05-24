@@ -7,7 +7,10 @@
         <StackPanel x:Name="LoginPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" IsVisible="true">
             <TextBlock Text="Увійдіть" FontSize="24"/>
                 <TextBox Name="LoginUserName" Watermark="Username" Width="200"/>
-                <TextBox Name="LoginPassword" Watermark="Password" Width="200"/>
+                <TextBox Name="LoginPassword" Watermark="Password"
+                PasswordChar="*"
+                Classes="revealPasswordButton"
+                Width="200"/>
                 <Button Classes="no-tab" Click="Login" Content="Увійти" Width="200"/>
                 <TextBlock Text="Зареєструватись"
                     Foreground="rgb(70, 100, 175)"
@@ -20,8 +23,8 @@
         <StackPanel x:Name="RegisterPanel" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="12" IsVisible="false">
             <TextBlock Text="Зареєструйтесь" FontSize="24"/>
             <TextBox Name="RegisterUserName" Watermark="Username" Width="200"/>
-            <TextBox Name="RegisterPassword" Watermark="Password" Width="200"/>
-            <TextBox Name="RegisterRepeatPassword" Watermark="Repeat Password" Width="200"/>
+            <TextBox Name="RegisterPassword" Watermark="Password" Width="200" PasswordChar="*" Classes="revealPasswordButton"/>
+            <TextBox Name="RegisterRepeatPassword" Watermark="Repeat Password" PasswordChar="*" Classes="revealPasswordButton" Width="200"/>
             <Button Classes="no-tab" Click="SignUp" Content="Зареєструватись" Width="200"/>
             <TextBlock Text="Увійти"
                        Foreground="rgb(70, 100, 175)"
@@ -65,12 +68,12 @@
     </Grid>
 
     <UserControl.Styles>
-    <Style Selector="TextBox.ErrorTextBoxStyle">
-        <Setter Property="BorderBrush" Value="Red"/>
-        <Setter Property="BorderThickness" Value="2"/>
-    </Style>
-    <Style Selector="Button.no-tab">
-    <Setter Property="IsTabStop" Value="False" />
-</Style>
-</UserControl.Styles>
+        <Style Selector="TextBox.ErrorTextBoxStyle">
+            <Setter Property="BorderBrush" Value="Red"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
+        <Style Selector="Button.no-tab">
+            <Setter Property="IsTabStop" Value="False" />
+        </Style>
+    </UserControl.Styles>
 </UserControl>

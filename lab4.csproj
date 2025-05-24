@@ -21,6 +21,6 @@
     <PackageReference Include="DotNetEnv" Version="3.1.1" />
     <PackageReference Include="Npgsql" Version="9.0.3" />
 
-    <AvaloniaResource Include="Assets/images/loader.png" />
+    <AvaloniaResource Include="Assets/images/*" />
   </ItemGroup>
 </Project>

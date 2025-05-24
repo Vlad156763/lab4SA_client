@@ -3,6 +3,12 @@ using lab4.MainWindowSpace;
 
 namespace lab4 {
     public partial class MainWindow : Window {
+        public MainWindow(string login, string password) {
+            InitializeComponent();
+            Session.Password = password;
+            Session.Username = login;
+            ShowMainMenu();
+        }
         public MainWindow() {
             InitializeComponent();
             ShowAutentification();
