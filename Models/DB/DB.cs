@@ -26,7 +26,7 @@ namespace lab4.Models {
                 cmd.ExecuteNonQuery();
                 cmd.Dispose();
                 conn.Close();
-                Logger.info($"Запит виконано:\t{sql}");
+                Logger.debug($"Запит виконано:\t{sql}");
             } catch (Exception ex) {
                 Logger.error($"Помилка: {ex.Message}");
             }
@@ -45,8 +45,8 @@ namespace lab4.Models {
                 var result = cmd.ExecuteScalar();
                 cmd.Dispose();
                 conn.Close();
-                Logger.info($"Запит виконано:\t{sql}");
-                Logger.info($"Результат виконання: {result}");
+                Logger.debug($"Запит виконано:\t{sql}");
+                Logger.debug($"Результат виконання: {result}");
                 return result != null && result is bool b && b;
             } catch (Exception ex) {
                 Logger.error($"Помилка: {ex.Message}");
@@ -66,8 +66,8 @@ namespace lab4.Models {
                 var result = await cmd.ExecuteScalarAsync();
                 await cmd.DisposeAsync();
                 await conn.CloseAsync();
-                Logger.info($"Запит виконано:\t{sql}");
-                Logger.info($"Результат виконання: {result}");
+                Logger.debug($"Запит виконано:\t{sql}");
+                Logger.debug($"Результат виконання: {result}");
                 return result != null && result is bool b && b;
             }
             catch (Exception ex) {
@@ -88,10 +88,35 @@ namespace lab4.Models {
                 await cmd.ExecuteNonQueryAsync();
                 await cmd.DisposeAsync();
                 await conn.CloseAsync();
-                Logger.info($"Запит виконано:\t{sql}");
+                Logger.debug($"Запит виконано:\t{sql}");
             } catch (Exception ex) {
                 Logger.error($"Помилка: {ex.Message}");
             }
+        }
+        public static async Task<List<object[]>> ExecuteQueryResultAsync(string sql, Dictionary<string, object>? parameters = null) {
+            var result = new List<object[]>();
+            try {
+                await using var conn = new NpgsqlConnection(connString);
+                await conn.OpenAsync();
+                await using var cmd = new NpgsqlCommand(sql, conn);
+                if (parameters != null) {
+                    foreach (var p in parameters) {
+                        cmd.Parameters.AddWithValue(p.Key, p.Value);
+                    }
+                }
+                await using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync()) {
+                    object[] row = new object[reader.FieldCount];
+                    reader.GetValues(row); // Заповнює масив усіма колонками
+                    result.Add(row);
+                }
+                await cmd.DisposeAsync();
+                await conn.CloseAsync();
+                Logger.debug($"Запит виконано:\t{sql}");
+            } catch (Exception ex) {
+                Logger.error($"Помилка: {ex.Message}");
+            }
+            return result;
         }
 
     }

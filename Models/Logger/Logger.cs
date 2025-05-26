@@ -12,9 +12,6 @@ namespace lab4.Models {
             Console.ForegroundColor = previousColor;
             Console.WriteLine(message);
         }
-        public static void info(string message, bool is_fullPath = false, [CallerFilePath] string fullPathFile = "", [CallerLineNumber] int line = 0) {
-            log(message, "INFO: ", ConsoleColor.White, is_fullPath, fullPathFile, line);
-        }
         public static void error(string message, bool is_fullPath = false, [CallerFilePath] string fullPathFile = "", [CallerLineNumber] int line = 0) {
             log(message,"ERROR: ", ConsoleColor.Red, is_fullPath, fullPathFile, line);
         }

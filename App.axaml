@@ -6,5 +6,9 @@
 
     <Application.Styles>
         <FluentTheme />
+        <Style Selector="TextBox.ErrorTextBoxStyle">
+            <Setter Property="BorderBrush" Value="Red"/>
+            <Setter Property="BorderThickness" Value="2"/>
+        </Style>
     </Application.Styles>
 </Application>

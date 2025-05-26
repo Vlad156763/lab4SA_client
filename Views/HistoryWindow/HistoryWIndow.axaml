@@ -1,0 +1,15 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="lab4.HistoryWindowSpace.HistoryWindow"
+        Width="500" 
+        Height="500" 
+        Background="#3C3C3C"
+        CanResize="False"
+        Title="історія">
+    <Grid RowDefinitions="Auto,*">
+        <Button Grid.Row="0" Content="" HorizontalAlignment="Center"/>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel x:Name="BlocksPanel" Orientation="Vertical" Margin="10"/>
+        </ScrollViewer>
+    </Grid>
+</Window>

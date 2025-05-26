@@ -64,14 +64,8 @@
                        TextAlignment="Center"
                        TextWrapping="Wrap"/>
         </Border>
-
     </Grid>
-
     <UserControl.Styles>
-        <Style Selector="TextBox.ErrorTextBoxStyle">
-            <Setter Property="BorderBrush" Value="Red"/>
-            <Setter Property="BorderThickness" Value="2"/>
-        </Style>
         <Style Selector="Button.no-tab">
             <Setter Property="IsTabStop" Value="False" />
         </Style>

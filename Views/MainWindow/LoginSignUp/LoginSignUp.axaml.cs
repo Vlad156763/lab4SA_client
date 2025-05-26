@@ -1,19 +1,13 @@
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using lab4.Models;
 using System.Collections.Generic;
-using Avalonia.Media;
-using Avalonia.Threading;
 using System.Threading.Tasks;
-using System;
-using System.Net.Http;
-using System.Text;
+using lab4.Models;
 
 
 namespace lab4.MainWindowSpace {
     public partial class LoginSignUp : UserControl {
         private MainWindow? _MainWindow; // головне вікно програми
-        private DispatcherTimer? _spinnerTimer; // таймер для оновлення спіна
 
         public LoginSignUp() {
             InitializeComponent();
@@ -32,26 +26,6 @@ namespace lab4.MainWindowSpace {
 
         // перехід до форми входу
         private void SwitchToLogin(object? sender, RoutedEventArgs e) => ChangeFormLogin_SignUp();
-        
-        //повідомлення
-        private void ShowMessage(string msg, bool isError) {
-            TextBlock.Text = msg;
-            string colorHex = "";
-            string bgHex = "";
-            if (isError) {
-                colorHex = "#FF4B4B";
-                bgHex = "#22FF4B4B";
-            } else {
-                colorHex = "#38FF85";
-                bgHex = "#2238FF85";
-            }
-            TextBlock.Foreground = new SolidColorBrush(Color.Parse(colorHex));
-            BorderBlock.Background = new SolidColorBrush(Color.Parse(bgHex));
-            BorderBlock.IsVisible = true;
-        }
-        private void HideMessage() {
-            BorderBlock.IsVisible = false;
-        }
 
         // асинхронна перевірка чи є ім'я користувача і пароль у бд
         private async Task<bool> CheckUser_isLoginAsync(string username, string password) {
@@ -74,39 +48,39 @@ namespace lab4.MainWindowSpace {
             RegisterRepeatPassword.Classes.Remove("ErrorTextBoxStyle");
             if (string.IsNullOrWhiteSpace(Username)) {
                 RegisterUserName.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Логін не може бути порожнім", true);
+                Message.ShowMessage("Логін не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(Password)) {
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Пароль не може бути порожнім", true);
+                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(RepeatPassword)) {
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Пароль не може бути порожнім", true);
+                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (Password != RepeatPassword) {
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Паролі не співпадають", true);
+                Message.ShowMessage("Паролі не співпадають", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
-            HideMessage();
-            StartSpinner();
+            Message.HideMessage(BorderBlock);
+            Spin.StartSpinner(Spinner);
             bool UserInDB = await CheckUser_isLoginAsync(Username);
-            StopSpinner();
+            Spin. StopSpinner(Spinner);
             if (UserInDB) {
                 RegisterUserName.Classes.Add("ErrorTextBoxStyle");
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Помилка! Логін вже зареєстрований", true);
+                Message.ShowMessage("Помилка! Логін вже зареєстрований", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
             Password = PasswordEncoder.set(Password);
-            HideMessage();
-            StartSpinner();
+            Message.HideMessage(BorderBlock);
+            Spin.StartSpinner(Spinner);
             await DB.ExecuteQueryAsync("insert into users (username, password) values (@username, @password);", new Dictionary<string, object> {{"@username", Username},{"@password", Password}});
-            StopSpinner();
-            ShowMessage("Успішно зареєстровано! Тепер увійдіть", false);
+            Spin.StopSpinner(Spinner);
+            Message.ShowMessage("Успішно зареєстровано! Тепер увійдіть", Message.LogLevel.Seccess, TextBlock, BorderBlock);
             LoginUserName.Text = Username;
             LoginPassword.Text = PasswordDecoder.set(Password);
             ChangeFormLogin_SignUp();
@@ -120,53 +94,30 @@ namespace lab4.MainWindowSpace {
             LoginPassword.Classes.Remove("ErrorTextBoxStyle");
             if (string.IsNullOrWhiteSpace(Username)) {
                 LoginUserName.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Логін не може бути порожнім", true);
+                Message.ShowMessage("Логін не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(Password)) {
                 LoginPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Пароль не може бути порожнім", true);
+                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
-            HideMessage(); 
-            StartSpinner();
+            Message.HideMessage(BorderBlock); 
+            Spin.StartSpinner(Spinner);
             bool UserInDB = await CheckUser_isLoginAsync(Username, Password);
-            StopSpinner();
+            Spin.StopSpinner(Spinner);
             if (!UserInDB) {
                 LoginUserName.Classes.Add("ErrorTextBoxStyle");
                 LoginPassword.Classes.Add("ErrorTextBoxStyle");
-                ShowMessage("Помилка! Не правельний логін або пароль", true);
+                Message.ShowMessage("Помилка! Не правельний логін або пароль", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
             if (_MainWindow != null) {
                 Session.Username = Username;
                 Session.Password = Password;
-                _MainWindow.Width = 600;
-                _MainWindow.Height = 600;
                 _MainWindow.ShowMainMenu();
             } else {
                 Logger.error("_MainWindow = null. Метод setMainWindow не було викликано для LoginSignUp");
             }
-        }
-
-        // запуск крутіння спіна
-        private void StartSpinner() {
-            Spinner.IsVisible = true;
-            _spinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
-            if (Spinner.RenderTransform != null) {
-                var transform = (RotateTransform)Spinner.RenderTransform;
-                _spinnerTimer.Tick += (_, _) => {
-                    if(transform != null)
-                        transform.Angle = (transform.Angle + 4) % 360;
-                };
-            }
-            _spinnerTimer.Start();
-        }
-        
-        //зупитка спіна
-        private void StopSpinner() {
-            Spinner.IsVisible = false;
-            _spinnerTimer?.Stop();
-            _spinnerTimer = null;
         }
     }
 }

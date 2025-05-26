@@ -1,5 +1,7 @@
 using Avalonia.Controls;
+using lab4.Models;
 using lab4.MainWindowSpace;
+using System.Threading.Tasks;
 
 namespace lab4 {
     public partial class MainWindow : Window {
@@ -7,6 +9,8 @@ namespace lab4 {
             InitializeComponent();
             Session.Password = password;
             Session.Username = login;
+            Logger.debug(login);
+            Logger.debug(password);
             ShowMainMenu();
         }
         public MainWindow() {
@@ -14,11 +18,15 @@ namespace lab4 {
             ShowAutentification();
         }
         public void ShowMainMenu() {
+            Width = 800;
+            Height = 800;
             var view = new MainMenu();
             view.setMainWindow(this);
             Autentification.Content = view;
         }
         public void ShowAutentification() {
+            Width=450;
+            Height=650;
             var view = new LoginSignUp();
             view.setMainWindow(this);
             Autentification.Content = view;

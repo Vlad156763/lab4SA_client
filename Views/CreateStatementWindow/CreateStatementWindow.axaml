@@ -1,0 +1,80 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        x:Class="lab4.CreateStatementWindowSpace.CreateStatementWindow"
+        Width="500" 
+        Height="500" 
+        Background="#3C3C3C"
+        CanResize="False"
+        Title="Створення заявки">
+    <Grid>
+        <StackPanel Margin="50" Spacing="15" VerticalAlignment="Center">
+            <TextBlock Text="Назва товару:" Foreground="White" FontSize="16"/>
+            <TextBox Watermark="Назва товару"
+                     Background="#2D2D2D"
+                     Foreground="White"
+                     BorderBrush="Gray"
+                     FontSize="14"
+                     Name="NameProduct"/>
+            <TextBlock Text="Кількість товару:" Foreground="White" FontSize="16"/>
+                <TextBox Watermark="Кількість товару"
+                             Background="#2D2D2D"
+                             Foreground="White"
+                             BorderBrush="Gray"
+                             FontSize="14"
+                             Name="AmountProduct"/>
+            <TextBlock Text="Одиниці вимірювання товару:" Foreground="White" FontSize="16"/>
+                <TextBox Watermark="шт, кг, м"
+                         Background="#2D2D2D"
+                         Foreground="White"
+                         BorderBrush="Gray"
+                         FontSize="14"
+                         Name="MeasurementProduct"/>
+            <TextBlock Text="Ціна товару за одиницю вимірвювання:" Foreground="White" FontSize="16"/>
+            <TextBox Watermark="Ціна товару"
+                     Background="#2D2D2D"
+                     Foreground="White"
+                     BorderBrush="Gray"
+                     Name="PriceProduct"
+                     FontSize="14"/>
+            <Button Content="Створити заявку"
+                    Background="#505050"
+                    Foreground="White"
+                    FontSize="14"
+                    HorizontalAlignment="Center"
+                    Width="150"
+                    Margin="0,20,0,0"
+                    Click="CreateStatement"/>
+        </StackPanel>
+        <!-- якщо щось довго -->
+        <Image Name="Spinner"
+               Source="avares://lab4/Assets/images/loader.png"
+               Margin="20"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Bottom"
+               Width="32" Height="32"
+               IsVisible="false">
+            <Image.RenderTransform>
+                <RotateTransform Angle="0"/>
+            </Image.RenderTransform>
+        </Image>
+
+        <!-- Для інформації -->
+        <Border Background="#22FF4B4B"
+                CornerRadius="6"
+                Padding="8"
+                Margin="20"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                MaxWidth="300"
+                IsVisible="false"
+                Name="BorderBlock">
+            <TextBlock Name="TextBlock"
+                       Foreground="#FF4B4B"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Text=""
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"/>
+        </Border>
+    </Grid>
+</Window>
