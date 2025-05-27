@@ -104,13 +104,20 @@ namespace lab4.MainWindowSpace {
             Message.HideMessage(BorderBlock); 
             Spin.StartSpinner(Spinner);
             bool UserInDB = await CheckUser_isLoginAsync(Username, Password);
-            Spin.StopSpinner(Spinner);
+            
             if (!UserInDB) {
+                Spin.StopSpinner(Spinner);
                 LoginUserName.Classes.Add("ErrorTextBoxStyle");
                 LoginPassword.Classes.Add("ErrorTextBoxStyle");
                 Message.ShowMessage("Помилка! Не правельний логін або пароль", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
+
+            var menu = await MenuFactory.CreateAsync(_MainWindow);
+            if (_MainWindow != null) {
+                _MainWindow.SetMainMenu(menu);
+            }
+            Spin.StopSpinner(Spinner);
             if (_MainWindow != null) {
                 Session.Username = Username;
                 Session.Password = Password;

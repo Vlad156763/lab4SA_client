@@ -5,6 +5,7 @@ using Avalonia;
 using Avalonia.Layout;
 using lab4.Models;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 
 
 namespace lab4.HistoryWindowSpace;
@@ -12,11 +13,14 @@ public partial class HistoryWindow : Window {
     bool is_createdHistory = true;
     public HistoryWindow() {
         InitializeComponent();
-        ButtonHistoryName.Content = "Оновити";
+        ButtonHistoryName.Content = "Переглянути історію куплених заявок";
     }
-    private async void BlocksHistory() {
-        Spin.StartSpinner(Spinner);
+    public async Task BlocksHistory(bool SpinerStart=true) {
+        if(SpinerStart) {
+            Spin.StartSpinner(Spinner);
+        }
         var result = await DB.ExecuteQueryResultAsync("select * from statements where id_user = (select id from users where username = @username);", new Dictionary<string, object> {{"username", Session.Username}});
+        BlocksPanel.Children.Clear();
         foreach (var row in result) {
             var block = new Border {
                 Background = new SolidColorBrush(Color.FromRgb(70, 70, 70)),
@@ -53,7 +57,7 @@ public partial class HistoryWindow : Window {
                 Spin.StartSpinner(Spinner);
                 await DB.ExecuteQueryAsync("delete from statements where id = @id;", new Dictionary<string, object> {{"@id", row[0]}});
                 Spin.StopSpinner(Spinner);
-                BlocksHistory();
+                await BlocksHistory();
             };
             Grid.SetColumn(nameText, 0);
             Grid.SetColumn(deleteButton, 2);
@@ -66,17 +70,26 @@ public partial class HistoryWindow : Window {
 
             BlocksPanel.Children.Add(block);
         }
-        Spin.StopSpinner(Spinner);
+        if(SpinerStart) {
+            Spin.StopSpinner(Spinner);
+        }
     }
-    private void ButtonHistory(object sender, RoutedEventArgs e) {
+    private async void ButtonHistory(object sender, RoutedEventArgs e) {
         is_createdHistory = !is_createdHistory;
         Spin.StopSpinner(Spinner);
         BlocksPanel.Children.Clear();
         if (is_createdHistory) {
             ButtonHistoryName.Content = "Переглянути історію куплених заявок";
-            BlocksHistory();
+            await BlocksHistory();
         } else {
             ButtonHistoryName.Content = "Переглянути історію створених заявок";
         }
+    }
+}
+public static class HistoryFactory {
+    public static async Task<HistoryWindow> CreateAsync() {
+        var history = new HistoryWindow();
+        await history.BlocksHistory(false); // це preload
+        return history;
     }
 }

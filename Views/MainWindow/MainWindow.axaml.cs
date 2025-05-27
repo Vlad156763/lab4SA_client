@@ -5,14 +5,7 @@ using System.Threading.Tasks;
 
 namespace lab4 {
     public partial class MainWindow : Window {
-        public MainWindow(string login, string password) {
-            InitializeComponent();
-            Session.Password = password;
-            Session.Username = login;
-            Logger.debug(login);
-            Logger.debug(password);
-            ShowMainMenu();
-        }
+        private UserControl? _mainMenu;
         public MainWindow() {
             InitializeComponent();
             ShowAutentification();
@@ -20,9 +13,16 @@ namespace lab4 {
         public void ShowMainMenu() {
             Width = 800;
             Height = 800;
-            var view = new MainMenu();
-            view.setMainWindow(this);
-            Autentification.Content = view;
+            if (_mainMenu != null)
+                Autentification.Content = _mainMenu;
+            else {
+                var view = new MainMenu();
+                view.setMainWindow(this);
+                Autentification.Content = view;
+            }
+        }
+        public void SetMainMenu(UserControl menu) {
+            _mainMenu = menu;
         }
         public void ShowAutentification() {
             Width=450;

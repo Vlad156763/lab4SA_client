@@ -7,6 +7,7 @@ using Avalonia.Layout;
 using System.Threading.Tasks;
 using lab4.CreateStatementWindowSpace;
 using lab4.HistoryWindowSpace;
+using lab4.BuyStatementWindow;
 
 namespace lab4.MainWindowSpace {
     public partial class MainMenu : UserControl {
@@ -14,12 +15,13 @@ namespace lab4.MainWindowSpace {
 
         public  MainMenu() {
                 InitializeComponent();
-                this.Loaded += async (_, __) => {await UpdateStatementsAsync(); };
         }
         public void setMainWindow(MainWindow _var) => _MainWindow = _var;
 
-        public async Task UpdateStatementsAsync() {
-            Spin.StartSpinner(UpSpinner);
+        public async Task UpdateStatementsAsync(bool SpinerStart=true) {
+            if(SpinerStart) {
+                Spin.StartSpinner(UpSpinner);
+            }
             var result = await DB.ExecuteQueryResultAsync("select s.id, s.name, s.price, s.amount, s.measurement, u.username as login from statements s join users u on s.id_user = u.id;");
             BlocksPanel.Children.Clear();
             foreach (var row in result) {
@@ -64,7 +66,9 @@ namespace lab4.MainWindowSpace {
                 };
                 BlocksPanel.Children.Add(block);
             }
-            Spin.StopSpinner(UpSpinner);
+            if(SpinerStart) {
+                Spin.StopSpinner(UpSpinner);
+            }
             UpSpinner.IsVisible = true;
         }
 
@@ -78,7 +82,9 @@ namespace lab4.MainWindowSpace {
             Logger.debug($"price: {product[2]}");
             Logger.debug($"amount: {product[3]} {product[4]}");
             Logger.debug($"id_user: {product[5]}");
-
+            var buyWindow = new BuyStatement();
+            if (_MainWindow != null)
+                buyWindow.ShowDialog(_MainWindow);
         }
         private void ExitToSignUp(object sender, RoutedEventArgs e) {
             Session.Username = "";
@@ -93,13 +99,31 @@ namespace lab4.MainWindowSpace {
             var NewWindow = new CreateStatementWindow();
             if(_MainWindow != null) {
                 await NewWindow.ShowDialog(_MainWindow);
+                Spin.StartSpinner(SpinnerDown);
+                await UpdateStatementsAsync();
+                Spin.StopSpinner(SpinnerDown);
             }
         }
         private async void History(object sender, RoutedEventArgs e) {
-            var NewWindow = new HistoryWindow();
+            Spin.StartSpinner(SpinnerDown);
+            var preloadWindow = await HistoryFactory.CreateAsync();
+            Spin.StopSpinner(SpinnerDown);
             if(_MainWindow != null) {
-                await NewWindow.ShowDialog(_MainWindow);
+                await preloadWindow.ShowDialog(_MainWindow);
+                Spin.StartSpinner(SpinnerDown);
+                await UpdateStatementsAsync();
+                Spin.StopSpinner(SpinnerDown);
             }
+        }
+    }
+    public static class MenuFactory {
+        public static async Task<MainMenu> CreateAsync(MainWindow? mw) {
+            var menu = new MainMenu();
+            if(mw != null) {
+                menu.setMainWindow(mw);
+            }
+            await menu.UpdateStatementsAsync(false); // це preload
+            return menu;
         }
     }
 }

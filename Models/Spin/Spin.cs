@@ -10,6 +10,8 @@ namespace lab4.Models {
         // запуск крутіння спіна
         public static void StartSpinner(Image Spinner) {
             Spinner.IsVisible = true;
+            _spinnerTimer?.Stop();
+            _spinnerTimer = null;
             _spinnerTimer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(16) };
             if (Spinner.RenderTransform != null) {
                 var transform = (RotateTransform)Spinner.RenderTransform;
