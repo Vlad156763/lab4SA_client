@@ -70,6 +70,7 @@ namespace lab4.MainWindowSpace {
 
 
         private async void UpdateButton(object sender, RoutedEventArgs e) {
+            Spin.StopSpinner(UpSpinner);
             await UpdateStatementsAsync();
         }
         private void ShowProduct(object[] product) {

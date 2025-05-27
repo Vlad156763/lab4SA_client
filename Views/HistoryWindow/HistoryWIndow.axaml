@@ -6,10 +6,34 @@
         Background="#3C3C3C"
         CanResize="False"
         Title="історія">
-    <Grid RowDefinitions="Auto,*">
-        <Button Grid.Row="0" Content="" HorizontalAlignment="Center"/>
+    <Grid RowDefinitions="Auto,*, Auto">
+        <Grid ColumnDefinitions="*, auto,*">
+            <Button
+                Content="" 
+                Name="ButtonHistoryName"
+                Click="ButtonHistory"
+                Height="40" 
+                HorizontalAlignment="Center" 
+                VerticalAlignment="Center"
+                HorizontalContentAlignment="Center"
+                VerticalContentAlignment="Center"
+                Grid.Column="1" 
+                Margin="10"/>
+        </Grid>
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="BlocksPanel" Orientation="Vertical" Margin="10"/>
         </ScrollViewer>
+        <Image Name="Spinner"
+               Source="avares://lab4/Assets/images/loader.png"
+               Margin="20"
+               HorizontalAlignment="Center"
+               VerticalAlignment="Bottom"
+               Width="32" Height="32"
+               IsVisible="False"
+               Grid.Row="2">
+            <Image.RenderTransform>
+                <RotateTransform Angle="0"/>
+            </Image.RenderTransform>
+        </Image>
     </Grid>
 </Window>
