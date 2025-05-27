@@ -112,15 +112,14 @@ namespace lab4.MainWindowSpace {
                 Message.ShowMessage("Помилка! Не правельний логін або пароль", Message.LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
-
+            Session.Username = Username;
+            Session.Password = Password;
             var menu = await MenuFactory.CreateAsync(_MainWindow);
             if (_MainWindow != null) {
                 _MainWindow.SetMainMenu(menu);
             }
             Spin.StopSpinner(Spinner);
             if (_MainWindow != null) {
-                Session.Username = Username;
-                Session.Password = Password;
                 _MainWindow.ShowMainMenu();
             } else {
                 Logger.error("_MainWindow = null. Метод setMainWindow не було викликано для LoginSignUp");

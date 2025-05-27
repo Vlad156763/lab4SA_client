@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using lab4.CreateStatementWindowSpace;
 using lab4.HistoryWindowSpace;
 using lab4.BuyStatementWindow;
+using System.Collections.Generic;
 
 namespace lab4.MainWindowSpace {
     public partial class MainMenu : UserControl {
@@ -22,7 +23,7 @@ namespace lab4.MainWindowSpace {
             if(SpinerStart) {
                 Spin.StartSpinner(UpSpinner);
             }
-            var result = await DB.ExecuteQueryResultAsync("select s.id, s.name, s.price, s.amount, s.measurement, u.username as login from statements s join users u on s.id_user = u.id;");
+            var result = await DB.ExecuteQueryResultAsync("select s.id, s.name, s.price, s.amount, s.measurement, u.username as login from statements s  join users u on s.id_user = u.id where s.is_active = true and s.id_user != (select id from users where username = @username);", new Dictionary<string, object> {{"username", Session.Username}});
             BlocksPanel.Children.Clear();
             foreach (var row in result) {
                 var block = new Border {
@@ -83,6 +84,7 @@ namespace lab4.MainWindowSpace {
             Logger.debug($"amount: {product[3]} {product[4]}");
             Logger.debug($"id_user: {product[5]}");
             var buyWindow = new BuyStatement();
+            buyWindow.SetProduct(product);
             if (_MainWindow != null)
                 buyWindow.ShowDialog(_MainWindow);
         }

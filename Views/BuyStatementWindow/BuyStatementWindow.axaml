@@ -14,7 +14,7 @@
                          Foreground="White"
                          BorderBrush="Gray"
                          FontSize="14"
-                         Name="MeasurementProduct"/>
+                         Name="AmountProduct"/>
             <TextBlock Text="Ціна за одиницю бажаючого товару:" Foreground="White" FontSize="16"/>
             <TextBox Watermark="Ціна (не менше за ту, яку вказав продавець)"
                      Background="#2D2D2D"
@@ -27,6 +27,8 @@
                     Foreground="White"
                     FontSize="14"
                     HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    Click="CreateStatement"
                     Width="150"
                     Margin="0,20,0,0"/>
         </StackPanel>

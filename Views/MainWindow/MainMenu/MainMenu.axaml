@@ -90,6 +90,24 @@
                 <RotateTransform Angle="0"/>
             </Image.RenderTransform>
         </Image>
+        <Border Background="#22FF4B4B"
+                CornerRadius="6"
+                Padding="8"
+                Margin="20"
+                Grid.Row="2"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                MaxWidth="300"
+                IsVisible="false"
+                Name="BorderBlock">
+            <TextBlock Name="TextBlock"
+                       Foreground="#FF4B4B"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Text=""
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"/>
+        </Border>
     </Grid>
     <UserControl.Styles>
         <Style Selector="Button.no-tab">
