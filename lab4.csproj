@@ -22,5 +22,8 @@
     <PackageReference Include="Npgsql" Version="9.0.3" />
 
     <AvaloniaResource Include="Assets/images/*" />
+    <None Update=".env.DB">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>

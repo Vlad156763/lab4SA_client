@@ -12,14 +12,12 @@
                 <TextBox Watermark="Введіть кількість товару який бажаєте придбати"
                          Background="#2D2D2D"
                          Foreground="White"
-                         BorderBrush="Gray"
                          FontSize="14"
                          Name="AmountProduct"/>
             <TextBlock Text="Ціна за одиницю бажаючого товару:" Foreground="White" FontSize="16"/>
             <TextBox Watermark="Ціна (не менше за ту, яку вказав продавець)"
                      Background="#2D2D2D"
                      Foreground="White"
-                     BorderBrush="Gray"
                      Name="PriceProduct"
                      FontSize="14"/>
             <Button Content="Створити заявку"

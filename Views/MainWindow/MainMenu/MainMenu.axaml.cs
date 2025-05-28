@@ -2,22 +2,32 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using Avalonia.Media;
 using Avalonia;
-using lab4.Models;
 using Avalonia.Layout;
-using System.Threading.Tasks;
+
+using lab4.Models;
 using lab4.CreateStatementWindowSpace;
 using lab4.HistoryWindowSpace;
 using lab4.BuyStatementWindow;
+using lab4.NotificationsWindowSpase;
+
+using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using System.Threading;
+using System;
+
 
 namespace lab4.MainWindowSpace {
     public partial class MainMenu : UserControl {
         private MainWindow? _MainWindow;
-
+        CancellationTokenSource? loadingToken;
         public  MainMenu() {
-                InitializeComponent();
+            InitializeComponent();
         }
         public void setMainWindow(MainWindow _var) => _MainWindow = _var;
+        public void setAdminButton() {
+            Admin.IsVisible = true;
+        }
 
         public async Task UpdateStatementsAsync(bool SpinerStart=true) {
             if(SpinerStart) {
@@ -78,15 +88,13 @@ namespace lab4.MainWindowSpace {
             Spin.StopSpinner(UpSpinner);
             await UpdateStatementsAsync();
         }
-        private void ShowProduct(object[] product) {
-            Logger.debug($"name: {product[1]}");
-            Logger.debug($"price: {product[2]}");
-            Logger.debug($"amount: {product[3]} {product[4]}");
-            Logger.debug($"id_user: {product[5]}");
+        private async void ShowProduct(object[] product) {
             var buyWindow = new BuyStatement();
             buyWindow.SetProduct(product);
-            if (_MainWindow != null)
-                buyWindow.ShowDialog(_MainWindow);
+            if (_MainWindow != null) {
+                await buyWindow.ShowDialog(_MainWindow);
+            }
+            await UpdateStatementsAsync();
         }
         private void ExitToSignUp(object sender, RoutedEventArgs e) {
             Session.Username = "";
@@ -117,12 +125,99 @@ namespace lab4.MainWindowSpace {
                 Spin.StopSpinner(SpinnerDown);
             }
         }
+        private async Task Loading( CancellationToken token) {
+            int i = 0;
+            string[] loading = { "[|]", "[/]","[-]", "[\\]"};
+
+            while(!token.IsCancellationRequested) {
+                i = (i + 1) % loading.Length;
+                Message.ShowMessage("Почекайте " + loading[i], Message.LogLevel.Debug, TextBlock, BorderBlock);
+                await Task.Delay(300);
+            }
+        }
+        private async void AdminButtonPressed(object sender, RoutedEventArgs e) {
+            if(_MainWindow != null)
+                _MainWindow.IsEnabled = false;
+            loadingToken = new CancellationTokenSource();
+            var loadingTask = Loading(loadingToken.Token);
+            
+            /*
+            1. отримати з бд всі statements
+            2. для n-ї заявки у statements, отримати таблицю покупців з bids
+            3. для кожного покупця з bids виписати скільки він пропонує грошей за одиницю товару
+            4. віднімати від кількості загального товару, кількість товару яку хочуть покупці доти, доки не буде 0
+            5. якщо у п. 4 вийшло 0, для поточної заявки змінюю поле is_active на false
+            6. віднімаю від amount стільки товару скільки хочуть покупці (змінюю це значення у statements.amount)
+            7. створити у таблиці  notifications поля для тих покупців, які запропонували найбільше, і можуть отримати товари згідно з п. 4-6
+            
+            */
+            var stAll = await DB.ExecuteQueryResultAsync("select * from statements where is_active = true;");
+            
+            foreach(var cSt in stAll) { //cSt - n заявка
+                var idCurrentStatement = Int32.Parse(cSt[0].ToString()??"");
+                var amountCurrentStatement = Int32.Parse(cSt[3].ToString()??"");
+                
+                var tb_bids = await DB.ExecuteQueryResultAsync("select * from bids where statements_id = @st_id;", new Dictionary<string, object> {
+                    {"st_id", idCurrentStatement}
+                });
+                var profits = new List<(int buyerIndex, int profit, int price)>();
+
+                for (int i = 0; i < tb_bids.Count; i++) {
+                    int price = Int32.Parse(tb_bids[i][4].ToString() ?? "");
+                    int amount = Int32.Parse(tb_bids[i][3].ToString() ?? "");
+                    int profit = price;
+                    profits.Add((i, profit, amount * price));
+                }
+                profits = profits.OrderByDescending(p => p.profit).ToList();
+                int i_ = 0;
+                for (; i_ < profits.Count; i_++) {
+                    if (amountCurrentStatement == 0) {
+                        //якщо юзерів більше 
+                        await DB.ExecuteQueryAsync("update statements set is_active = false where id = @id;", new Dictionary<string, object>{{"id", cSt[0]}});
+                        break;
+                    };
+                    amountCurrentStatement -= Int32.Parse( tb_bids[profits[i_].buyerIndex][3].ToString() ?? "");
+                }
+                for (int i = 0; i < i_; i++) {
+                    await DB.ExecuteQueryAsync("insert into notifications (user_id, name_product, statements_id, bids_id, price) values (@idUsr, @name, @idSt, @idBids, @price);", new Dictionary<string, object> {
+                        {"idUsr", tb_bids[profits[i].buyerIndex][2]},
+                        {"name", cSt[1]},
+                        {"idSt", cSt[0]},
+                        {"idBids", tb_bids[profits[i].buyerIndex][0]},
+                        {"price", profits[i].price}
+                    });
+                }
+            }
+            loadingToken.Cancel();
+            await loadingTask;
+            if(_MainWindow != null)
+                _MainWindow.IsEnabled = true;
+            Message.ShowMessage("Готово", Message.LogLevel.Debug, TextBlock, BorderBlock);
+        }
+        private void PressedClose(object sender, RoutedEventArgs e) {
+            Message.HideMessage(BorderBlock);
+        }
+        private async void Notifications(object sender, RoutedEventArgs e) {
+            Spin.StartSpinner(SpinnerDown);
+            var preloadWindow = await NotificationsFactory.CreateAsync(_MainWindow);
+            Spin.StopSpinner(SpinnerDown);
+            if(_MainWindow != null) {
+                await preloadWindow.ShowDialog(_MainWindow);
+                Spin.StartSpinner(SpinnerDown);
+                await preloadWindow.UpdateNotificationsAsync();
+                Spin.StopSpinner(SpinnerDown);
+            }
+        }
     }
     public static class MenuFactory {
         public static async Task<MainMenu> CreateAsync(MainWindow? mw) {
             var menu = new MainMenu();
             if(mw != null) {
                 menu.setMainWindow(mw);
+            }
+            //адмін
+            if(Session.Username == "vlad") {
+                menu.setAdminButton();
             }
             await menu.UpdateStatementsAsync(false); // це preload
             return menu;

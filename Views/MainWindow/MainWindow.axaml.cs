@@ -1,7 +1,5 @@
 using Avalonia.Controls;
-using lab4.Models;
 using lab4.MainWindowSpace;
-using System.Threading.Tasks;
 
 namespace lab4 {
     public partial class MainWindow : Window {

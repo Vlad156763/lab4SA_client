@@ -1,25 +1,12 @@
 <Window xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        x:Class="lab4.HistoryWindowSpace.HistoryWindow"
-        Width="500" 
-        Height="500" 
+        x:Class="lab4.NotificationsWindowSpase.NotificationsWindow"
+        Width="600" 
+        Height="600" 
         Background="#3C3C3C"
         CanResize="False"
-        Title="історія">
+        Title="Повідомлення">
     <Grid RowDefinitions="Auto,*, Auto">
-        <Grid ColumnDefinitions="*, auto,*">
-            <Button
-                Content="" 
-                Name="ButtonHistoryName"
-                Click="ButtonHistory"
-                Height="40" 
-                HorizontalAlignment="Center" 
-                VerticalAlignment="Center"
-                HorizontalContentAlignment="Center"
-                VerticalContentAlignment="Center"
-                Grid.Column="1" 
-                Margin="10"/>
-        </Grid>
         <!-- частина з блоками -->
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel x:Name="BlocksPanel" Orientation="Vertical" Margin="10"/>

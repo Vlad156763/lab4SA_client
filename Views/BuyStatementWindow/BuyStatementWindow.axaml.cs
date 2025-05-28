@@ -46,6 +46,7 @@ public partial class BuyStatement : Window {
             Message.ShowMessage("Вказано товару, більше, ніж є у продавця", Message.LogLevel.Error, TextBlock, BorderBlock);
             return;
         }
+        Message.HideMessage(BorderBlock);
         Spin.StartSpinner(Spinner);
         //вставка інфи у bids
         await DB.ExecuteQueryAsync("insert into bids ( statements_id, buyer_id, amount, price) values ( @st_id, (select id from users where username = @br_id), @amount, @price);", new Dictionary<string, object> {
@@ -54,20 +55,6 @@ public partial class BuyStatement : Window {
             {"amount", intAmountBuyer},
             {"price", intPriceBuyer}
         });
-        //оновлення кількості товару
-        await DB.ExecuteQueryAsync("update statements set amount = @amount where id = @id",
-        new Dictionary<string, object> {
-            {"amount", intAmountProdaveh - intAmountBuyer},
-            {"id", Int32.Parse(product[0].ToString() ?? "")}
-        });
-        // якщо покупці викупили весь товар, закрити заяву
-        if(intAmountProdaveh - intAmountBuyer == 0) {
-            await DB.ExecuteQueryAsync("update statements set is_active = @isActive where id = @id;",
-            new Dictionary<string, object> {
-                {"isActive", false},
-                {"id", Int32.Parse(product[0].ToString() ?? "")}
-            });
-        }
         Spin.StopSpinner(Spinner);
         this.Close();
     }

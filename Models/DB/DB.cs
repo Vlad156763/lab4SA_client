@@ -9,7 +9,7 @@ namespace lab4.Models {
     public static class DB {
         private static string? connString;
         static DB() {
-            Env.Load( Path.GetFullPath( Path.Combine( AppContext.BaseDirectory, "..", "..", "..", ".env.DB" ) ) );
+            Env.Load(Path.Combine(AppContext.BaseDirectory, ".env.DB"));
             connString = $"Host={Env.GetString("PGHOST")};Port={Env.GetString("PGPORT")};Username={Env.GetString("PGUSER")};Password={Env.GetString("PGPASSWORD")};Database={Env.GetString("PGDATABASE")}";
         }
 
