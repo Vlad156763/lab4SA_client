@@ -1,14 +1,11 @@
 using Avalonia.Controls;
 using Avalonia.Media;
+using lab4.Interface;
+
 namespace lab4.Models {
-    public static class Message {
-        public enum LogLevel {
-            Debug,
-            Warning,
-            Error,
-            Seccess
-        }
-        public static void ShowMessage(string msg, LogLevel type, TextBlock TextBlock, Border BorderBlock ) {
+    public  class MessageComponent : IMessage {
+        
+        public void ShowMessage(string msg, LogLevel type, TextBlock TextBlock, Border BorderBlock ) {
             TextBlock.Text = msg;
             string colorHex = "";
             string bgHex = "";
@@ -29,8 +26,14 @@ namespace lab4.Models {
             BorderBlock.Background = new SolidColorBrush(Color.Parse(bgHex));
             BorderBlock.IsVisible = true;
         }
-        public static void HideMessage(Border BorderBlock) {
+        public void HideMessage(Border BorderBlock) {
             BorderBlock.IsVisible = false;
         }
+    }
+    public enum LogLevel {
+            Debug,
+            Warning,
+            Error,
+            Seccess
     }
 }

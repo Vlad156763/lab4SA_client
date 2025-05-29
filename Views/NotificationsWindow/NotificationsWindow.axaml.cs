@@ -6,9 +6,12 @@ using Avalonia.Media;
 using Avalonia.Controls;
 using System.Threading.Tasks;
 using lab4.Models;
+using lab4.Interface;
 
 namespace lab4.NotificationsWindowSpase {
     public partial class NotificationsWindow : Window {
+        IDB DB = new DBComponent();
+        ISpin Spin = new SpinComponent();
         private MainWindow? _MainWindow;
         public NotificationsWindow() {
             InitializeComponent();
@@ -28,7 +31,7 @@ namespace lab4.NotificationsWindowSpase {
                 Spin.StartSpinner(Spinner);
             }
             var result = await DB.ExecuteQueryResultAsync("select * from notifications where user_id = (select id from users where username = @username);", new Dictionary<string, object> {{"username", Session.Username}});
-             BlocksPanel.Children.Clear();
+            BlocksPanel.Children.Clear();
         foreach (var row in result) {
             var block = new Border {
                 Background = new SolidColorBrush(Color.FromRgb(70, 70, 70)),
@@ -63,7 +66,7 @@ namespace lab4.NotificationsWindowSpase {
                 HorizontalAlignment = HorizontalAlignment.Right,
                 Margin = new Thickness(0, 0, 10, 0)
             };
-             var ConfirmButton = new Button {
+            var ConfirmButton = new Button {
                 Content = "Підтвердити",
                 FontSize = 16,
                 Background = new SolidColorBrush(Color.FromArgb(0x22, 0x38, 0xFF, 0x85)),
@@ -74,14 +77,16 @@ namespace lab4.NotificationsWindowSpase {
             deleteButton.Click += async (s,args) => {
                 Spin.StartSpinner(Spinner);
                 await DB.ExecuteQueryAsync("delete from bids where id = @id;", new Dictionary<string, object> {{"id", row[4]}});
+                await DB.ExecuteQueryAsync("delete from notifications where id = @id;", new Dictionary<string, object> {{"id", row[0]}});
                 await DB.ExecuteQueryAsync("update statements set is_active = true where id = @id", new Dictionary<string, object> {{"id", row[3]}});
                 Spin.StopSpinner(Spinner);
                 await UpdateNotificationsAsync();
             };
             ConfirmButton.Click += async (s,args) => {
                 Spin.StartSpinner(Spinner);
+                await DB.ExecuteQueryAsync("update statements set amount = amount - (select amount from bids where id = @id_bids)::integer, profit = profit + @profit where id = @id", new Dictionary<string, object> {{"id",row[3] }, {"id_bids", row[4]}, {"profit", row[5]}});
+                await DB.ExecuteQueryAsync("delete from notifications where id = @id;", new Dictionary<string, object> {{"id", row[0]}});
                 await DB.ExecuteQueryAsync("delete from bids where id = @id;", new Dictionary<string, object> {{"id", row[4]}});
-                await DB.ExecuteQueryAsync("update statements set is_active = true where id = @id", new Dictionary<string, object> {{"id", row[3]}});
                 Spin.StopSpinner(Spinner);
                 await UpdateNotificationsAsync();
             };
@@ -100,7 +105,7 @@ namespace lab4.NotificationsWindowSpase {
             BlocksPanel.Children.Add(block);
         }
             if(SpinnerStart) {
-                Spin.StartSpinner(Spinner);
+                Spin.StopSpinner(Spinner);
             }
         }
     }

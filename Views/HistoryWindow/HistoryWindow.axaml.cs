@@ -8,10 +8,12 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using lab4.BuyStatementWindow;
 using System;
-
+using lab4.Interface;
 
 namespace lab4.HistoryWindowSpace;
 public partial class HistoryWindow : Window {
+    IDB DB = new DBComponent();
+    ISpin Spin = new SpinComponent();
     bool is_createdHistory = true;
     public HistoryWindow() {
         InitializeComponent();
@@ -57,7 +59,7 @@ public partial class HistoryWindow : Window {
             deleteButton.Click += async (s,args) => {
                 Spin.StopSpinner(Spinner);
                 Spin.StartSpinner(Spinner);
-                await DB.ExecuteQueryAsync("delete from statements where id = @id;", new Dictionary<string, object> {{"id", row[0]}});
+                await DB.ExecuteQueryAsync("delete from statements where id = @id; delete from bids where statements_id = @id; delete from notifications where statements_id = @id", new Dictionary<string, object> {{"id", row[0]}});
                 Spin.StopSpinner(Spinner);
                 await BlocksHistory();
             };
@@ -113,7 +115,7 @@ public partial class HistoryWindow : Window {
             };
             deleteButton.Click += async (s,args) => {
                 Spin.StartSpinner(Spinner);
-                await DB.ExecuteQueryAsync("delete from bids where id = @id;", new Dictionary<string, object> {{"id", row[0]}});
+                await DB.ExecuteQueryAsync("delete from bids where id = @id; delete from notifications where statements_id = @id", new Dictionary<string, object> {{"id", row[0]}});
                 Spin.StopSpinner(Spinner);
                 await ByersStatements();
             };

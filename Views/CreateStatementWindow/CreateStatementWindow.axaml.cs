@@ -3,9 +3,14 @@ using Avalonia.Controls;
 using Avalonia.Interactivity;
 using System.Collections.Generic;
 using lab4.Models;
+using System;
+using lab4.Interface;
 namespace lab4.CreateStatementWindowSpace;
 
 public partial class CreateStatementWindow : Window {
+    IDB DB = new DBComponent();
+    ISpin Spin = new SpinComponent();
+    IMessage Message = new MessageComponent();
     public CreateStatementWindow() {
         InitializeComponent();
     }
@@ -21,19 +26,19 @@ public partial class CreateStatementWindow : Window {
         MeasurementProduct.Classes.Remove("ErrorTextBoxStyle");
         if (string.IsNullOrWhiteSpace(name)) {
             NameProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Назва товару не може бути пустою", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Назва товару не може бути пустою", LogLevel.Error, TextBlock, BorderBlock);
             return;
         } else if (string.IsNullOrWhiteSpace(amount)) {
             AmountProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Кількість товару не може бути пустим", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Кількість товару не може бути пустим", LogLevel.Error, TextBlock, BorderBlock);
             return;
         } else if (string.IsNullOrWhiteSpace(price)) {
             PriceProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Ціна не може бути пустою", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Ціна не може бути пустою", LogLevel.Error, TextBlock, BorderBlock);
             return;
         } else if (string.IsNullOrWhiteSpace(measurement)) {
             MeasurementProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Одиниці вимінювання не може бути пустими", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Одиниці вимінювання не може бути пустими", LogLevel.Error, TextBlock, BorderBlock);
             return;
         }
         Message.HideMessage(BorderBlock);
@@ -44,7 +49,7 @@ public partial class CreateStatementWindow : Window {
             new Dictionary<string, object> {
                 {"@name", name},
                 {"@price", price},
-                {"@amount", amount},
+                {"@amount", Int32.Parse(amount)},
                 {"@measurement", measurement},
                 {"@username", Session.Username}
             }

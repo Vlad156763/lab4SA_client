@@ -3,10 +3,15 @@ using Avalonia.Interactivity;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using lab4.Models;
-
+using lab4.Interface;
 
 namespace lab4.MainWindowSpace {
     public partial class LoginSignUp : UserControl {
+        IDB DB = new DBComponent();
+        ISpin Spin = new SpinComponent();
+        IMessage Message = new MessageComponent();
+        ILogger Logger = new LoggerComponent();
+        IPassword IPAssword = new PasswordComponent();
         private MainWindow? _MainWindow; // головне вікно програми
 
         public LoginSignUp() {
@@ -29,7 +34,7 @@ namespace lab4.MainWindowSpace {
 
         // асинхронна перевірка чи є ім'я користувача і пароль у бд
         private async Task<bool> CheckUser_isLoginAsync(string username, string password) {
-            password = PasswordEncoder.set(password);
+            password = IPAssword.Encode(password);
             return await DB.ExecuteBoolQueryAsync("select exists (select 1 from users where username = @username and password = @password);", new Dictionary<string, object> {{"@username", username},{"@password", password}});
         }
 
@@ -48,20 +53,20 @@ namespace lab4.MainWindowSpace {
             RegisterRepeatPassword.Classes.Remove("ErrorTextBoxStyle");
             if (string.IsNullOrWhiteSpace(Username)) {
                 RegisterUserName.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Логін не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Логін не може бути порожнім", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(Password)) {
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Пароль не може бути порожнім", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(RepeatPassword)) {
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Пароль не може бути порожнім", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (Password != RepeatPassword) {
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Паролі не співпадають", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Паролі не співпадають", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
             Message.HideMessage(BorderBlock);
@@ -72,17 +77,17 @@ namespace lab4.MainWindowSpace {
                 RegisterUserName.Classes.Add("ErrorTextBoxStyle");
                 RegisterPassword.Classes.Add("ErrorTextBoxStyle");
                 RegisterRepeatPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Помилка! Логін вже зареєстрований", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Помилка! Логін вже зареєстрований", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
-            Password = PasswordEncoder.set(Password);
+            Password = IPAssword.Encode(Password);
             Message.HideMessage(BorderBlock);
             Spin.StartSpinner(Spinner);
             await DB.ExecuteQueryAsync("insert into users (username, password) values (@username, @password);", new Dictionary<string, object> {{"@username", Username},{"@password", Password}});
             Spin.StopSpinner(Spinner);
-            Message.ShowMessage("Успішно зареєстровано! Тепер увійдіть", Message.LogLevel.Seccess, TextBlock, BorderBlock);
+            Message.ShowMessage("Успішно зареєстровано! Тепер увійдіть", LogLevel.Seccess, TextBlock, BorderBlock);
             LoginUserName.Text = Username;
-            LoginPassword.Text = PasswordDecoder.set(Password);
+            LoginPassword.Text = IPAssword.Decode(Password);
             ChangeFormLogin_SignUp();
         }
 
@@ -94,11 +99,11 @@ namespace lab4.MainWindowSpace {
             LoginPassword.Classes.Remove("ErrorTextBoxStyle");
             if (string.IsNullOrWhiteSpace(Username)) {
                 LoginUserName.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Логін не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Логін не може бути порожнім", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             } else if (string.IsNullOrWhiteSpace(Password)) {
                 LoginPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Пароль не може бути порожнім", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Пароль не може бути порожнім", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
             Message.HideMessage(BorderBlock); 
@@ -109,7 +114,7 @@ namespace lab4.MainWindowSpace {
                 Spin.StopSpinner(Spinner);
                 LoginUserName.Classes.Add("ErrorTextBoxStyle");
                 LoginPassword.Classes.Add("ErrorTextBoxStyle");
-                Message.ShowMessage("Помилка! Не правельний логін або пароль", Message.LogLevel.Error, TextBlock, BorderBlock);
+                Message.ShowMessage("Помилка! Не правельний логін або пароль", LogLevel.Error, TextBlock, BorderBlock);
                 return;
             }
             Session.Username = Username;

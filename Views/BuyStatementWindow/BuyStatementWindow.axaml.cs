@@ -4,9 +4,15 @@ using Avalonia.Interactivity;
 using lab4.Models;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-
+using lab4.Interface;
 namespace lab4.BuyStatementWindow;
+
+
 public partial class BuyStatement : Window {
+    IDB DB = new DBComponent();
+    ISpin Spin = new SpinComponent();
+    IMessage Message = new MessageComponent();
+    ILogger Logger = new LoggerComponent();
     private object[]? product;
     public BuyStatement() {
         InitializeComponent();
@@ -27,11 +33,11 @@ public partial class BuyStatement : Window {
 
         if (string.IsNullOrWhiteSpace(PriceProduct.Text)) {
             PriceProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Ціна не може бути пустою", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Ціна не може бути пустою", LogLevel.Error, TextBlock, BorderBlock);
             return;
         } else if (string.IsNullOrWhiteSpace(AmountProduct.Text)) {
             AmountProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Кількість не може бути пустою", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Кількість не може бути пустою", LogLevel.Error, TextBlock, BorderBlock);
             return;
         }
         var intPriceBuyer = Int32.Parse(PriceProduct.Text ?? "");
@@ -39,11 +45,11 @@ public partial class BuyStatement : Window {
 
         if (intPriceProdaveh >= intPriceBuyer) {
             PriceProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Ставка менша за вказану продавцем", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Ставка менша за вказану продавцем", LogLevel.Error, TextBlock, BorderBlock);
             return;
         } else if (intAmountBuyer > intAmountProdaveh) {
             PriceProduct.Classes.Add("ErrorTextBoxStyle");
-            Message.ShowMessage("Вказано товару, більше, ніж є у продавця", Message.LogLevel.Error, TextBlock, BorderBlock);
+            Message.ShowMessage("Вказано товару, більше, ніж є у продавця", LogLevel.Error, TextBlock, BorderBlock);
             return;
         }
         Message.HideMessage(BorderBlock);

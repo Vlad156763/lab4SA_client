@@ -4,16 +4,18 @@ using System.IO;
 using Npgsql;
 using DotNetEnv;
 using System.Threading.Tasks;
+using lab4.Interface;
 
 namespace lab4.Models {
-    public static class DB {
-        private static string? connString;
-        static DB() {
+    public class DBComponent : IDB {
+        ILogger Logger = new LoggerComponent();
+        private string? connString;
+        public DBComponent () {
             Env.Load(Path.Combine(AppContext.BaseDirectory, ".env.DB"));
             connString = $"Host={Env.GetString("PGHOST")};Port={Env.GetString("PGPORT")};Username={Env.GetString("PGUSER")};Password={Env.GetString("PGPASSWORD")};Database={Env.GetString("PGDATABASE")}";
         }
 
-        public static void ExecuteQuery(string sql, Dictionary<string, object>? parameters = null) {
+        public void ExecuteQuery(string sql, Dictionary<string, object>? parameters = null) {
             try {
                 using var conn = new NpgsqlConnection(connString);
                 conn.Open();
@@ -32,7 +34,7 @@ namespace lab4.Models {
             }
         }
 
-        public static bool ExecuteBoolQuery(string sql, Dictionary<string, object>? parameters = null) {
+        public bool ExecuteBoolQuery(string sql, Dictionary<string, object>? parameters = null) {
             try {
                 using var conn = new NpgsqlConnection(connString);
                 conn.Open();
@@ -53,7 +55,7 @@ namespace lab4.Models {
                 return false;
             }
         }
-        public static async Task<bool> ExecuteBoolQueryAsync(string sql, Dictionary<string, object>? parameters = null) {
+        public async Task<bool> ExecuteBoolQueryAsync(string sql, Dictionary<string, object>? parameters = null) {
             try {
                 await using var conn = new NpgsqlConnection(connString);
                 await conn.OpenAsync();
@@ -75,7 +77,7 @@ namespace lab4.Models {
                 return false;
             }
         }
-        public static async Task ExecuteQueryAsync(string sql, Dictionary<string, object>? parameters = null) {
+        public async Task ExecuteQueryAsync(string sql, Dictionary<string, object>? parameters = null) {
             try {
                 await using var conn = new NpgsqlConnection(connString);
                 await conn.OpenAsync();
@@ -93,7 +95,7 @@ namespace lab4.Models {
                 Logger.error($"Помилка: {ex.Message}");
             }
         }
-        public static async Task<List<object[]>> ExecuteQueryResultAsync(string sql, Dictionary<string, object>? parameters = null) {
+        public async Task<List<object[]>> ExecuteQueryResultAsync(string sql, Dictionary<string, object>? parameters = null) {
             var result = new List<object[]>();
             try {
                 await using var conn = new NpgsqlConnection(connString);

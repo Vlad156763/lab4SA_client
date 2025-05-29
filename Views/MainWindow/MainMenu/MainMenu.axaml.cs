@@ -9,6 +9,7 @@ using lab4.CreateStatementWindowSpace;
 using lab4.HistoryWindowSpace;
 using lab4.BuyStatementWindow;
 using lab4.NotificationsWindowSpase;
+using lab4.Interface;
 
 using System.Linq;
 using System.Collections.Generic;
@@ -19,6 +20,11 @@ using System;
 
 namespace lab4.MainWindowSpace {
     public partial class MainMenu : UserControl {
+        IDB DB = new DBComponent();
+        ISpin Spin = new SpinComponent();
+        IMessage Message = new MessageComponent();
+        ILogger Logger = new LoggerComponent();
+        
         private MainWindow? _MainWindow;
         CancellationTokenSource? loadingToken;
         public  MainMenu() {
@@ -131,7 +137,7 @@ namespace lab4.MainWindowSpace {
 
             while(!token.IsCancellationRequested) {
                 i = (i + 1) % loading.Length;
-                Message.ShowMessage("Почекайте " + loading[i], Message.LogLevel.Debug, TextBlock, BorderBlock);
+                Message.ShowMessage("Почекайте " + loading[i], LogLevel.Debug, TextBlock, BorderBlock);
                 await Task.Delay(300);
             }
         }
@@ -151,6 +157,7 @@ namespace lab4.MainWindowSpace {
             7. створити у таблиці  notifications поля для тих покупців, які запропонували найбільше, і можуть отримати товари згідно з п. 4-6
             
             */
+            await DB.ExecuteQueryAsync("delete from notifications; ALTER SEQUENCE notifications_id_seq RESTART WITH 1;");
             var stAll = await DB.ExecuteQueryResultAsync("select * from statements where is_active = true;");
             
             foreach(var cSt in stAll) { //cSt - n заявка
@@ -192,7 +199,7 @@ namespace lab4.MainWindowSpace {
             await loadingTask;
             if(_MainWindow != null)
                 _MainWindow.IsEnabled = true;
-            Message.ShowMessage("Готово", Message.LogLevel.Debug, TextBlock, BorderBlock);
+            Message.ShowMessage("Готово", LogLevel.Debug, TextBlock, BorderBlock);
         }
         private void PressedClose(object sender, RoutedEventArgs e) {
             Message.HideMessage(BorderBlock);
